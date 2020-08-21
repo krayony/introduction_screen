@@ -57,7 +57,7 @@ class IntroductionScreen extends StatefulWidget {
   final bool freeze;
 
   /// Global background color (only visible when a page has a transparent background color)
-  final Color globalBackgroundColor;
+  final dynamic globalBackgroundColor;
 
   /// Dots decorator to custom dots color, size and spacing
   final DotsDecorator dotsDecorator;
@@ -204,61 +204,66 @@ class IntroductionScreenState extends State<IntroductionScreen> {
     );
 
     return Scaffold(
-      backgroundColor: widget.globalBackgroundColor,
-      body: Stack(
-        children: [
-          NotificationListener<ScrollNotification>(
-            onNotification: _onScroll,
-            child: PageView(
-              controller: _pageController,
-              physics: widget.freeze
-                  ? const NeverScrollableScrollPhysics()
-                  : const BouncingScrollPhysics(),
-              children: widget.pages.map((p) => IntroPage(page: p)).toList(),
-              onPageChanged: widget.onChange,
-            ),
+      backgroundColor: widget.globalBackgroundColor is Color ? widget.globalBackgroundColor : null,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: widget.globalBackgroundColor is List ? widget.globalBackgroundColor : null,
           ),
-          Positioned(
-            bottom: 16.0,
-            left: 16.0,
-            right: 16.0,
-            child: SafeArea(
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: widget.skipFlex,
-                    child: isSkipBtn
-                        ? skipBtn
-                        : Opacity(opacity: 0.0, child: skipBtn),
-                  ),
-                  Expanded(
-                    flex: widget.dotsFlex,
-                    child: Center(
-                      child: widget.isProgress
-                          ? DotsIndicator(
-                              dotsCount: widget.pages.length,
-                              position: _currentPage,
-                              decorator: widget.dotsDecorator,
-                              onTap: widget.isProgressTap && !widget.freeze
-                                  ? (pos) => animateScroll(pos.toInt())
-                                  : null,
-                            )
-                          : const SizedBox(),
-                    ),
-                  ),
-                  Expanded(
-                    flex: widget.nextFlex,
-                    child: isLastPage
-                        ? doneBtn
-                        : widget.showNextButton
-                            ? nextBtn
-                            : Opacity(opacity: 0.0, child: nextBtn),
-                  ),
-                ],
+        ),
+        child: Stack(
+          children: [
+            NotificationListener<ScrollNotification>(
+              onNotification: _onScroll,
+              child: PageView(
+                controller: _pageController,
+                physics: widget.freeze
+                    ? const NeverScrollableScrollPhysics()
+                    : const BouncingScrollPhysics(),
+                children: widget.pages.map((p) => IntroPage(page: p)).toList(),
+                onPageChanged: widget.onChange,
               ),
             ),
-          ),
-        ],
+            Positioned(
+              bottom: 16.0,
+              left: 16.0,
+              right: 16.0,
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: widget.skipFlex,
+                      child: isSkipBtn ? skipBtn : Opacity(opacity: 0.0, child: skipBtn),
+                    ),
+                    Expanded(
+                      flex: widget.dotsFlex,
+                      child: Center(
+                        child: widget.isProgress
+                            ? DotsIndicator(
+                                dotsCount: widget.pages.length,
+                                position: _currentPage,
+                                decorator: widget.dotsDecorator,
+                                onTap: widget.isProgressTap && !widget.freeze
+                                    ? (pos) => animateScroll(pos.toInt())
+                                    : null,
+                              )
+                            : const SizedBox(),
+                      ),
+                    ),
+                    Expanded(
+                      flex: widget.nextFlex,
+                      child: isLastPage
+                          ? doneBtn
+                          : widget.showNextButton ? nextBtn : Opacity(opacity: 0.0, child: nextBtn),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
